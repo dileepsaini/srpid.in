@@ -1,0 +1,274 @@
+{
+    "keyword": [
+        "All Units",
+        "Manage Units",
+        "Product Units"
+    ],
+    "title": "Units",
+    "route_name": "admin.product.unit.index",
+    "menu_active": "admin.product.unit.index"
+},
+
+{
+                "keyword": [
+                    "All Brands",
+                    "Manage Brands",
+                    "Brand management"
+                ],
+                "title": "Brands",
+                "route_name": "admin.product.brand.index",
+                "menu_active": [
+                    "admin.product.brand.index"
+                ]
+            },
+
+
+
+
+
+
+SELECT p.name as p_name, c.name as c_name, s.name as s_name 
+FROM color_size cs
+JOIN product_color pc ON cs.product_color_id = pc.id
+JOIN products p ON pc.product_id = p.id
+JOIN tab_color c ON pc.color_id = c.id
+JOIN tab_size s ON cs.size_id = s.id
+ORDER BY p.name, c.name, s.id;
+
+
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+php artisan route:clear
+php artisan serve
+
+php artisan permission:create
+php artisan permission:update
+
+
+project update
+
+1. Color module -> completed
+2. Size Module -> Completed
+3. Product Module -> Completed
+4. Warehouse Module -> Completed
+5. Customer Module -> Still working on -> In-progress
+6. Transport Module -> Completed
+
+
+
+
+
+
+CREATE TABLE tab_color (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tab_size (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE customers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(100) NOT NULL,
+    group_type ENUM('Agent', 'Distributor') NOT NULL,
+    agent_id INT NULL,
+    mobile VARCHAR(15) NOT NULL,
+    email VARCHAR(255) NULL,
+    area_name VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    pincode VARCHAR(10) NOT NULL,
+    gst_number VARCHAR(20) NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (agent_id) REFERENCES customers(id) ON DELETE SET NULL
+);
+
+
+CREATE TABLE transport (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    area_name VARCHAR(50) NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE tab_category (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tab_product (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    design_code VARCHAR(50) NOT NULL,
+    design_image VARCHAR(255) NULL,
+    category_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES tab_category(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE product_color (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    color_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (color_id) REFERENCES tab_color(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE color_size (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_color_id INT NOT NULL,
+    size_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_color_id) REFERENCES product_color(id) ON DELETE CASCADE,
+    FOREIGN KEY (size_id) REFERENCES tab_size(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE tab_sales (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_number VARCHAR(20) NOT NULL,
+    customer_id INT NOT NULL,
+    order_date DATE NOT NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE sales_details (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    sales_id INT NOT NULL,
+    product_color_id INT NOT NULL,
+    size_id INT NOT NULL,
+    quantity INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (sales_id) REFERENCES tab_sales(id) ON DELETE CASCADE,
+    FOREIGN KEY (product_color_id) REFERENCES product_color(id) ON DELETE CASCADE,
+    FOREIGN KEY (size_id) REFERENCES tab_size(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tab_order_picking (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    status ENUM('Pending', 'Ongoing', 'Complete', 'Billing on Hold') NOT NULL,
+    notes TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES tab_sales(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE tab_order_invoice (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    invoice_number VARCHAR(50) NOT NULL,
+    transport_id INT NOT NULL,
+    status ENUM('Pending', 'Ongoing', 'Complete', 'Dispatch on Hold') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES tab_sales(id) ON DELETE CASCADE,
+    FOREIGN KEY (transport_id) REFERENCES transport(id) ON DELETE CASCADE
+);
+
+CREATE TABLE tab_order_dispatch (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    status ENUM('Pending', 'Ongoing', 'Complete') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES tab_sales(id) ON DELETE CASCADE
+);
+
+
+Working with the Relationship
+
+Once the relationships are defined, you can perform various operations:
+
+Attach Colors to a Product:
+php
+Copy
+Edit
+$product = Product::find($productId);
+$product->colors()->attach($colorId);
+Detach Colors from a Product:
+php
+Copy
+Edit
+$product = Product::find($productId);
+$product->colors()->detach($colorId);
+Sync Colors for a Product:
+php
+Copy
+Edit
+$product = Product::find($productId);
+$product->colors()->sync([$colorId1, $colorId2]);
+Retrieve Colors of a Product:
+php
+Copy
+Edit
+$product = Product::with('colors')->find($productId);
+$colors = $product->colors;
+Retrieve Products of a Color:
+php
+Copy
+Edit
+$color = Color::with('products')->find($colorId);
+$products = $color->products;
+By implementing this structure, you can effectively manage the association between products and their available colors within your Laravel application.
+
+
+
+
+Invoice_table -> 
+                1. Id,
+                2. invoice_number
+                3. order_date
+                4. warehouse_id
+                5.  created_at
+                6. updated_at
+
+invoice_transjaction_table -> 
+                            1. id
+                            2. invoicee_table_id
+                            3. product_id
+                            4. color_id
+                            5. size_id
+
+
+
+    demo data like this
+
+    columns:Invoice Number, Order date, warehouse, Product Name, customer name, 
+
+    product name: 567 , color: red, size: 32M(input box qty),34M(input box qty),36L(input box qty)
+    product name: 567 , color: blue, size: 32L(input box qty),34M(input box qty)
+    product name: 567 , color: green, size: 32L(input box qty),34M(input box qty),34LX(input box qty),32LX(input box qty)
+    product name: 570 , color: green, size: 32L(input box qty),34M(input box qty),34LX(input box qty),32LX(input box qty)
+    product name: 570 , color: blue, size: 32L(input box qty),34M(input box qty)
+    product name: 570 , color: green, size: 32L(input box qty),34M(input box qty),34LX(input box qty),32LX(input box qty)
+
+
+
+
+    return '<a href="#" class="btn btn--dark btn-sm disabled" tabindex="-1" aria-disabled="true" title="you Don`t have permission for edit">Edit</a>';
