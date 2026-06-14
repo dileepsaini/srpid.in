@@ -502,8 +502,12 @@ public function ImgUpdate(Request $request)
 
     $file = $request->file('image');
 
+    $typeShort = $request->type;
+    if ($typeShort === 'studen_signature') $typeShort = 'std_sing';
+    if ($typeShort === 'employe_signature') $typeShort = 'emp_sig';
+
     // Unique JPG filename
-    $filename = $schoolCode . '_' . time() . '_' . $request->type . '.jpg';
+    $filename = $schoolCode . '_' . time() . '_' . $typeShort . '.jpg';
 
     $destinationPath = public_path('students');
 
@@ -797,7 +801,7 @@ public function ImgUpdate(Request $request)
 
                         if (File::exists($filePath)) {
                             $originalFileName = basename($filePath);
-                            $zipEntryName = $originalFileName; // No subfolders, all in one zip
+                            $zipEntryName = $schoolName . '/' . $originalFileName; // Put in school folder, but no student subfolders
                             $zip->addFile($filePath, $zipEntryName);
                             $filesAdded++;
                         }
