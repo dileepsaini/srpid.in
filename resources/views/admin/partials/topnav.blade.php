@@ -80,6 +80,13 @@
                     </button>
                 </li>
             @endpermit
+            <li>
+                <button class="primary--layer" data-bs-toggle="tooltip" data-bs-placement="bottom" type="button" title="Contact Admin">
+                    <a href="https://wa.me/91{{ \App\Models\Admin::find(1)->mobile ?? '' }}?text=Hello%20sir%20I'm%20from%20{{ urlencode(auth()->guard('admin')->user()->name) }}" target="_blank">
+                        <i class="lab la-whatsapp" style="color: #25D366; font-size: 35px; vertical-align: middle;"></i>
+                    </a>
+                </button>
+            </li>
             <li class="dropdown d-flex profile-dropdown">
                 <button data-bs-toggle="dropdown" data-display="static" type="button" aria-haspopup="true" aria-expanded="false">
                     <span class="navbar-user">
