@@ -779,8 +779,8 @@ public function ImgUpdate(Request $request)
                         }
 
                         if (File::exists($filePath)) {
-                            $ext = File::extension($filePath);
-                            $zipEntryName = $schoolName . '/' . $studentName . '/' . $type . '.' . $ext;
+                            $originalFileName = basename($filePath);
+                            $zipEntryName = $schoolName . '/' . $studentName . '/' . $originalFileName;
                             $zip->addFile($filePath, $zipEntryName);
                             $filesAdded++;
                         }
