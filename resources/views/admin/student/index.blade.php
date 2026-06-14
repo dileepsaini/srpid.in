@@ -743,10 +743,10 @@ function loadStudentCards(page = 1, filters = null) {
             }
 
             res.data.forEach(student => {
-                const profileUrl = student.profile ? `{{ asset('students') }}/${student.profile}` : `{{ asset('storage/red-x-png-4.png') }}`;
-                const fatherImageUrl = student.father_image ? `{{ asset('storage/students') }}/${student.father_image}` : `{{ asset('storage/red-x-png-4.png') }}`;
-                const motherImageUrl = student.mother_image ? `{{ asset('storage/students') }}/${student.mother_image}` : `{{ asset('storage/red-x-png-4.png') }}`;
-                const guardianImageUrl = student.guardian_image ? `{{ asset('storage/students') }}/${student.guardian_image}` : `{{ asset('storage/red-x-png-4.png') }}`;
+                const profileUrl = student.profile ? `{{ asset('students') }}/${student.profile}` : `{{ asset('red-x-png-4.png') }}`;
+                const fatherImageUrl = student.father_image ? `{{ asset('students') }}/${student.father_image}` : `{{ asset('red-x-png-4.png') }}`;
+                const motherImageUrl = student.mother_image ? `{{ asset('students') }}/${student.mother_image}` : `{{ asset('red-x-png-4.png') }}`;
+                const guardianImageUrl = student.guardian_image ? `{{ asset('students') }}/${student.guardian_image}` : `{{ asset('red-x-png-4.png') }}`;
 
             console.log(profileUrl)
             let profile = '';
@@ -754,7 +754,7 @@ function loadStudentCards(page = 1, filters = null) {
                 // const profileUrl = '{{ asset('students') }}' +`/${student.profile}`;
                 profile = `
                     <div class="text-center">
-                        <img src="${profileUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="profile" width="60px" height="60px" alt="Student">
+                        <img src="${profileUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="profile" width="60px" height="60px" alt="Student" style="object-fit: cover; border: 2px solid #e0e0e0; cursor: pointer;">
                         <div class="small">Student</div>
                     </div>
                 `;
@@ -765,7 +765,7 @@ function loadStudentCards(page = 1, filters = null) {
                 // const fatherImageUrl = '{{ asset('students') }}'+`/${student.father_image}`;
                 fatherImage = `
                     <div class="text-center">
-                        <img src="${fatherImageUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="father_image" width="60px" height="60px" alt="Father">
+                        <img src="${fatherImageUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="father_image" width="60px" height="60px" alt="Father" style="object-fit: cover; border: 2px solid #e0e0e0; cursor: pointer;">
                         <div class="small">Father</div>
                     </div>
                 `;
@@ -776,7 +776,7 @@ function loadStudentCards(page = 1, filters = null) {
                 
                 motherImage = `
                     <div class="text-center">
-                        <img src="${motherImageUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="mother_image" width="60px" height="60px" alt="Mother">
+                        <img src="${motherImageUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="mother_image" width="60px" height="60px" alt="Mother" style="object-fit: cover; border: 2px solid #e0e0e0; cursor: pointer;">
                         <div class="small">Mother</div>
                     </div>
                 `;
@@ -787,7 +787,7 @@ function loadStudentCards(page = 1, filters = null) {
               
                 guardianImage = `
                     <div class="text-center">
-                        <img src="${guardianImageUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="guardian_image" width="60px" height="60px" alt="Guardian">
+                        <img src="${guardianImageUrl}" class="rounded-circle updateImg" data-id="${student.id}" data-type="guardian_image" width="60px" height="60px" alt="Guardian" style="object-fit: cover; border: 2px solid #e0e0e0; cursor: pointer;">
                         <div class="small">Guardian</div>
                     </div>
                 `;

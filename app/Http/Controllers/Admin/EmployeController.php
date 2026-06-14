@@ -60,7 +60,6 @@ class EmployeController extends Controller
         }
 
         $select_school = $request->filter['select_school'] ?? [];
-        \Log::info('Full DataTables Request Filter: ' . json_encode($request->filter ?? []));
         if (!is_array($select_school)) $select_school = [$select_school];
         $select_school = array_filter($select_school, function($value) { return $value !== '' && $value !== null; });
         if (!empty($select_school)) {
@@ -105,8 +104,6 @@ class EmployeController extends Controller
 
             return response()->json(['data' => $data]);
         }
-
-        \Log::info('DataTables SQL: ' . $students->toSql(), $students->getBindings());
 
         return datatables()->of($students)
             ->addColumn('action', function ($row) {
@@ -621,15 +618,15 @@ public function ImgUpdate(Request $request)
                     throw new \Exception("Base64 decode failed or content too small");
                 }
         
-                $fileName = uniqid($sigField . '_') . '.jpg';
+                $fileName = uniqid($sigField . '_') . '.png';
                 $destinationPath = public_path('students/signatures');
         
                 if (!File::exists($destinationPath)) {
                     File::makeDirectory($destinationPath, 0755, true);
                 }
         
-                // Convert and save as JPG
-                $image = Image::make($decoded)->encode('jpg', 90);
+                // Convert and save as PNG to preserve transparency
+                $image = Image::make($decoded)->encode('png');
                 $image->save($destinationPath . '/' . $fileName);
         
                 $student->$sigField = '/signatures/' . $fileName;
