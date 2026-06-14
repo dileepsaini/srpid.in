@@ -328,6 +328,14 @@ $allowedFields = array_unique($allowedFields);
         // Get allowed fields for this admin (as array)
         $allowedFields = array_filter(explode(',', $get_student->fields ?? ''));
 
+        // Force add all image fields for easy cross-referencing
+        $imageFields = ['profile', 'father_image', 'mother_image', 'guardian_image', 'studen_signature', 'employe_signature'];
+        foreach ($imageFields as $imgF) {
+            if (!in_array($imgF, $allowedFields)) {
+                $allowedFields[] = $imgF;
+            }
+        }
+
         // Human-readable column titles
         $fieldLabels = [
             'student_name' => 'Student Name',
@@ -412,6 +420,14 @@ $allowedFields = array_unique($allowedFields);
         $get_student = Admin::find($adminId);
 
         $allowedFields = array_filter(explode(',', $get_student->fields ?? ''));
+
+        // Force add all image fields for easy cross-referencing
+        $imageFields = ['profile', 'father_image', 'mother_image', 'guardian_image', 'studen_signature', 'employe_signature'];
+        foreach ($imageFields as $imgF) {
+            if (!in_array($imgF, $allowedFields)) {
+                $allowedFields[] = $imgF;
+            }
+        }
 
         $fieldLabels = [
             'student_name' => 'Student Name',
@@ -620,7 +636,8 @@ public function ImgUpdate(Request $request)
                     throw new \Exception("Base64 decode failed or content too small");
                 }
         
-                $fileName = $schoolCode . '_' . time() . '_' . $sigField . '.png';
+                $sigShort = ($sigField === 'studen_signature') ? 'std_sing' : 'emp_sig';
+                $fileName = $schoolCode . '_' . time() . '_' . $sigShort . '.png';
                 $destinationPath = public_path('students/signatures');
         
                 if (!File::exists($destinationPath)) {
@@ -780,7 +797,7 @@ public function ImgUpdate(Request $request)
 
                         if (File::exists($filePath)) {
                             $originalFileName = basename($filePath);
-                            $zipEntryName = $schoolName . '/' . $studentName . '/' . $originalFileName;
+                            $zipEntryName = $originalFileName; // No subfolders, all in one zip
                             $zip->addFile($filePath, $zipEntryName);
                             $filesAdded++;
                         }

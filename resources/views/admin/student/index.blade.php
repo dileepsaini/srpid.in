@@ -41,6 +41,7 @@
             <div class="form-group">
                 <label for="">Select Image Types</label>
                 <select class="form-control" name="select_image_types" id="select_image_types" multiple>
+                    <option value="all" selected>All</option>
                     <option value="profile">Profile</option>
                     <option value="father_image">Father Image</option>
                     <option value="mother_image">Mother Image</option>
@@ -646,6 +647,10 @@ $(document).on('click', '#downloadImagesBtn', function () {
     if (!image_types || image_types.length === 0) {
         toastr.error('Please select at least one image type to download.');
         return false;
+    }
+
+    if (image_types.includes('all')) {
+        image_types = ['profile', 'father_image', 'mother_image', 'guardian_image', 'studen_signature', 'employe_signature'];
     }
 
     var form = document.createElement('form');
