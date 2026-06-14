@@ -8,24 +8,26 @@
         </div>
         <div class="app-header-right">
             <img src="{{ getImage(getFilePath('adminProfile').'/'. auth()->guard('admin')->user()->image,getFileSize('adminProfile')) }}" alt="profile">
-            <span>Partner</span>
+            <span>{{ auth()->guard('admin')->user()->username }}</span>
         </div>
     </div>
 
     <div class="app-grid">
-        @permit('admin.school.index')
-        <a href="{{ route('admin.school.index') }}" class="app-card">
-            <img src="{{ asset('assets/icon/List-School.webp') }}" alt="School List">
-            <span>School List</span>
-        </a>
-        @endpermit
+        @if(auth()->guard('admin')->id() == 1)
+            @permit('admin.school.index')
+            <a href="{{ route('admin.school.index') }}" class="app-card">
+                <img src="{{ asset('assets/icon/List-School.webp') }}" alt="School List">
+                <span>School List</span>
+            </a>
+            @endpermit
 
-        @permit('admin.student.import')
-        <a href="javascript:void(0)" class="app-card">
-            <img src="{{ asset('assets/icon/Add-Students.jpg') }}" alt="Import Students">
-            <span>Import Students</span>
-        </a>
-        @endpermit
+            @permit('admin.student.import')
+            <a href="javascript:void(0)" class="app-card">
+                <img src="{{ asset('assets/icon/Add-Students.jpg') }}" alt="Import Students">
+                <span>Import Students</span>
+            </a>
+            @endpermit
+        @endif
 
         @permit('admin.student.store')
         <a href="{{ route('admin.student.create') }}" class="app-card">
@@ -205,4 +207,14 @@
     }
 
 </style>
+@endpush
+
+@push('script')
+<script>
+    $(document).ready(function() {
+        // Move the bottom nav to the body to escape any CSS transforms from parent 
+        // containers that break position: fixed on mobile browsers
+        $('.app-bottom-nav').appendTo('body');
+    });
+</script>
 @endpush
