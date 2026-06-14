@@ -7,7 +7,7 @@
                     <div class="login-area">
                         <div class="login-wrapper">
                             <div class="login-wrapper__top">
-                                <h3 class="title text-white">@lang('Welcome to') <strong>{{ __(gs('site_name')) }}</strong></h3>
+                                <h3 class="title text-white">@lang('Welcome to 6') <strong>{{ __(gs('site_name')) }}</strong></h3>
                                 <p class="text-white">{{ __($pageTitle) }} @lang('to') {{ __(gs('site_name')) }}
                                     @lang('Dashboard')</p>
                             </div>
