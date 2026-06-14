@@ -13,21 +13,41 @@ use Illuminate\Support\Facades\Hash;
 class StaffController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
         $pageTitle = 'All School';
-         $adminId = auth()->guard('admin')->id();
-         if($adminId == 1){
-             $allStaff  = Admin::with('role')->searchable(['username', 'name', 'mobile'])->orderBy('name', 'asc')->paginate(getPaginate());
-            $roles     = Role::all();
-         }else{
-             $allStaff  = Admin::with('role')->where('id', $adminId)->searchable(['username', 'name', 'mobile'])->orderBy('name', 'asc')->paginate(getPaginate());
-       
-             $roles     = Role::all();
-         }
+        $adminId = auth()->guard('admin')->id();
 
-         
-        return view('admin.school.index', compact('pageTitle', 'allStaff', 'roles'));
+        if ($request->ajax()) {
+            if ($adminId == 1) {
+                $query = Admin::with('role');
+            } else {
+                $query = Admin::with('role')->where('id', $adminId);
+            }
+
+            return datatables()->of($query)
+                ->addIndexColumn()
+                ->addColumn('school_name', function ($row) {
+                    return __($row->name);
+                })
+                ->addColumn('fields_allowed', function ($row) {
+                    return implode(', ', explode(',', $row->fields));
+                })
+                ->addColumn('role_name', function ($row) {
+                    return $row->role ? $row->role->name : __('Super Admin');
+                })
+                ->addColumn('status', function ($row) {
+                    return $row->statusBadge;
+                })
+                ->addColumn('action', function ($row) {
+                    return view('admin.school.action', ['staff' => $row])->render();
+                })
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+        }
+
+        $roles = Role::all();
+        return view('admin.school.index', compact('pageTitle', 'roles'));
     }
 
     public function status($id)
@@ -97,5 +117,55 @@ class StaffController extends Controller
     {
         Auth::guard('admin')->loginUsingId($id);
         return to_route('admin.dashboard');
+    }
+
+    public function schoolExcel(Request $request)
+    {
+        // Only allow super admin
+        if (auth()->guard('admin')->id() != 1) {
+            abort(403);
+        }
+
+        $schools = Admin::with('role')->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headerRow = [
+            'ID', 'School Username', 'School Name', 'School Email', 
+            'School Partner', 'School Phone', 'School Address', 
+            'School Code', 'Allowed Fields', 'Role', 'Status'
+        ];
+
+        $sheet->fromArray($headerRow, NULL, 'A1');
+
+        $rowData = [];
+        foreach ($schools as $school) {
+            $rowData[] = [
+                $school->id,
+                $school->username,
+                $school->name,
+                $school->email,
+                $school->partner,
+                $school->mobile,
+                $school->addresh,
+                $school->code,
+                implode(', ', explode(',', $school->fields)),
+                $school->role ? $school->role->name : 'Super Admin',
+                $school->status == 1 ? 'Active' : 'Inactive'
+            ];
+        }
+
+        $sheet->fromArray($rowData, NULL, 'A2');
+
+        $fileName = 'Schools_' . time() . '.xlsx';
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 }

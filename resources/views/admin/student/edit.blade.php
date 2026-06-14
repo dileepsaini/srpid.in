@@ -144,6 +144,53 @@
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 
 <script>
+    const studentCanvas = document.getElementById('studen_signature-pad');
+    const employeCanvas = document.getElementById('employe_signature-pad');
+
+    let studentPad = null;
+    let employePad = null;
+
+    if (studentCanvas) {
+        studentPad = new SignaturePad(studentCanvas);
+        document.getElementById('clear-studen_signature').addEventListener('click', () => studentPad.clear());
+    }
+    
+    if (employeCanvas) {
+        employePad = new SignaturePad(employeCanvas);
+        document.getElementById('clear-employe_signature').addEventListener('click', () => employePad.clear());
+    }
+
+    // Resize canvas while preserving signature
+    function resizeCanvas(canvas, pad) {
+        if (!canvas || !pad) return;
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const data = pad.toData(); // Save existing drawing
+
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext("2d").scale(ratio, ratio);
+
+        pad.clear();
+        pad.fromData(data); // Restore drawing
+    }
+
+    if (studentCanvas) resizeCanvas(studentCanvas, studentPad);
+    if (employeCanvas) resizeCanvas(employeCanvas, employePad);
+
+    window.addEventListener("resize", () => {
+        if (studentCanvas) resizeCanvas(studentCanvas, studentPad);
+        if (employeCanvas) resizeCanvas(employeCanvas, employePad);
+    });
+
+    // On form submit, save signature as Base64
+    document.getElementById('myform').addEventListener('submit', function () {
+        if (studentPad && !studentPad.isEmpty()) {
+            document.getElementById('studen_signature').value = studentPad.toDataURL();
+        }
+        if (employePad && !employePad.isEmpty()) {
+            document.getElementById('employe_signature').value = employePad.toDataURL();
+        }
+    });
 
       $(document).on('click', '#save_btn', function(){
                     const submitBtn = document.getElementById('save_btn');

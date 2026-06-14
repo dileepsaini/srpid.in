@@ -1,161 +1,231 @@
 @extends('admin.layouts.app')
 
 @section('panel')
-    <div class="row gy-4">
-        
-        {{-- <div class="col-xxl-3 col-sm-6">
-            <x-widget value="{{ $widget['total_supplier'] }}" title="Total Suppliers" style="6" link="{{ route('admin.supplier.index') }}"
-                icon="las la-user-friends" bg="purple" outline=false />
-        </div> --}}
-        
-    </div>
-
-      <div class="row mt-2 gy-4">
-        <div class="col-xxl-6">
-            <div class="card box-shadow3 h-100">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-6">
-                            <h5 class="card-title">@lang('Orders')</h5>
-                        </div>
-                      
-                    </div>
-                    <div class="widget-card-wrapper">
-                        <div class="widget-card bg--success">
-                            @permit('admin.school.index')
-                            <a class="widget-card-link" href="{{ route('admin.school.index') }}"></a>
-                            @endpermit
-                            <div class="widget-card-left">
-                                <div class="widget-card-icon">
-                                   <img src="{{ asset('assets/icon/Add-School.jpg') }}" alt="{{ asset('assets/icon/Add-School.jpg') }}">
-
-                                </div>
-                                <div class="widget-card-content">
-                                    <h6 class="widget-card-amount">{{ $widget['school_count'] }}</h6>
-                                    <p class="widget-card-title">@lang('Total School')</p>
-                                </div>
-                            </div>
-                            <span class="widget-card-arrow">
-                                <i class="las la-angle-right"></i>
-                            </span>
-                        </div>
-
-                        <div class="widget-card bg--warning">
-                            @permit('admin.student.index')
-                            <a class="widget-card-link" href="{{ route('admin.student.index') }}"></a>
-                            @endpermit
-                            <div class="widget-card-left">
-                                <div class="widget-card-icon">
-                                      <img src="{{ asset('assets/icon/Add-Students.jpg') }}" alt="{{ asset('assets/icon/Add-Students.jpg') }}">
-                                </div>
-                                <div class="widget-card-content">
-                                    <h6 class="widget-card-amount">{{ $widget['student_count'] }}</h6>
-                                    <p class="widget-card-title">@lang('Total Student')</p>
-                                </div>
-                            </div>
-                            <span class="widget-card-arrow">
-                                <i class="las la-angle-right"></i>
-                            </span>
-                        </div>
-                           @permit('admin.school.index')
-                        <div class="widget-card bg--warning">
-                         
-                            <a class="widget-card-link" href="{{ route('admin.school.index') }}"></a>
-                            <div class="widget-card-left">
-                                <div class="widget-card-icon">
-                                      <img src="{{ asset('assets/icon/List-School.webp') }}" alt="{{ asset('assets/icon/List-School.webp') }}">
-                                </div>
-                                <div class="widget-card-content">
-                                    <p class="widget-card-title">@lang('School List')</p>
-                                </div>
-                            </div>
-                            <span class="widget-card-arrow">
-                                <i class="las la-angle-right"></i>
-                            </span>
-                        </div>
-                            @endpermit
-
-                      
-
-
-                    </div>
-                </div>
-            </div>
+<div class="app-dashboard">
+    <div class="app-header">
+        <div class="app-header-left">
+            <img src="{{ asset('assets/images/logo_icon/logo.png') }}" alt="logo">
         </div>
-        {{--      
-        <div class="col-xl-6 mb-30">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex flex-wrap justify-content-between">
-                        <h5 class="card-title">@lang('Orders Report Chart')</h5>
-                        <div class="border p-1 cursor-pointer rounded" id="saleSaleReturnDatePicker">
-                            <i class="la la-calendar"></i>&nbsp;
-                            <span></span> <i class="la la-caret-down"></i>
-                        </div>
-                    </div>
+        <div class="app-header-right">
+            <img src="{{ getImage(getFilePath('adminProfile').'/'. auth()->guard('admin')->user()->image,getFileSize('adminProfile')) }}" alt="profile">
+            <span>Partner</span>
+        </div>
+    </div>
 
-                    <div id="sSrChartArea"></div>
-                </div>
-            </div>
-        </div> --}}
+    <div class="app-grid">
+        @if(auth()->guard('admin')->id() == 1)
+        @permit('admin.school.index')
+        <a href="{{ route('admin.school.index') }}" class="app-card">
+            <img src="{{ asset('assets/icon/Add-School.jpg') }}" alt="Add School">
+            <span>Add School</span>
+        </a>
+        @endpermit
+        @endif
+
+        @permit('admin.school.index')
+        <a href="{{ route('admin.school.index') }}" class="app-card">
+            <img src="{{ asset('assets/icon/List-School.webp') }}" alt="School List">
+            <span>School List</span>
+        </a>
+        @endpermit
+
+        @permit('admin.student.import')
+        <a href="javascript:void(0)" class="app-card">
+            <img src="{{ asset('assets/icon/Add-Students.jpg') }}" alt="Import Students">
+            <span>Import Students</span>
+        </a>
+        @endpermit
+
+        @permit('admin.student.store')
+        <a href="{{ route('admin.student.create') }}" class="app-card">
+            <img src="{{ asset('assets/icon/Add-Students.jpg') }}" alt="Add Student">
+            <span>Add Student</span>
+        </a>
+        @endpermit
+
+        @permit('admin.student.index')
+        <a href="{{ route('admin.student.index') }}" class="app-card">
+            <img src="{{ asset('assets/icon/Add-Students.jpg') }}" alt="List Students">
+            <span>List Students</span>
+        </a>
+        @endpermit
+
+        @if(auth()->guard('admin')->id() == 1)
+        <a href="javascript:void(0)" class="app-card">
+            <i class="las la-info-circle" style="color: #455a64;"></i>
+            <span>About</span>
+        </a>
+
+        <a href="javascript:void(0)" class="app-card">
+            <i class="las la-phone-volume" style="color: #1976d2;"></i>
+            <span>Contact</span>
+        </a>
+        @endif
+
+        @permit('admin.student.csv')
+        <a href="{{ route('admin.student.excel') }}" class="app-card">
+            <i class="las la-file-excel" style="color: #00796b;"></i>
+            <span>Excel Export</span>
+        </a>
+        @endpermit
     </div>
-    <div class="row mb-none-30 mt-30">
-      
-    </div>
+</div>
+
+<div class="app-bottom-nav">
+    <a href="{{ route('admin.dashboard') }}" class="app-bottom-nav-item">
+        <i class="las la-home" style="color: #ff8c00;"></i>
+        <span>Home</span>
+    </a>
+    <a href="{{ route('admin.dashboard') }}" class="app-bottom-nav-item">
+        <i class="las la-desktop" style="color: #5c6bc0;"></i>
+        <span style="color: #333; font-weight: 600;">Dashboard</span>
+    </a>
+    <a href="{{ route('admin.profile') }}" class="app-bottom-nav-item">
+        <i class="las la-user" style="color: #42a5f5;"></i>
+        <span>Profile</span>
+    </a>
+    <a href="{{ route('admin.logout') }}" class="app-bottom-nav-item">
+        <i class="las la-power-off" style="color: #ff5722;"></i>
+        <span>Log Out</span>
+    </a>
+</div>
 @endsection
 
-@push('script-lib')
-    <script src="{{ asset('assets/admin/js/vendor/apexcharts.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/vendor/chart.js.2.8.0.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/moment.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/daterangepicker.min.js') }}"></script>
-    <script src="{{ asset('assets/admin/js/charts.js') }}"></script>
-@endpush
-
-@push('style-lib')
-    <link type="text/css" href="{{ asset('assets/admin/css/daterangepicker.css') }}" rel="stylesheet">
-@endpush
-
-@push('script')
-  
-@endpush
 @push('style')
-    <style>
-        .apexcharts-menu {
-            min-width: 120px !important;
-        }
-   
-  
+<style>
+    /* Hide the default layout elements for this specific page */
+    .sidebar { display: none !important; }
+    .navbar-wrapper { display: none !important; }
+    .body-wrapper { margin-left: 0 !important; }
+    .breadcrumb-nav { display: none !important; }
+    .d-flex.mb-30.flex-wrap.gap-3.justify-content-between.align-items-center { display: none !important; }
+    
+    .page-wrapper { 
+        background: linear-gradient(135deg, #e01292, #3f51b5) !important; 
+        min-height: 100vh; 
+    }
+    .bodywrapper__inner { 
+        padding: 0 !important; 
+        background: transparent !important; 
+    }
+    .container-fluid {
+        padding: 0 !important;
+    }
 
-  .nav-icon svg {
-    width: 32px;
-    height: 32px;
-  }
-  .bottom-nav {
-    background-color: #fff;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-top: 1px solid #ddd;
-  }
-  .bottom-nav button {
-    background: none;
-    border: none;
-    font-size: 0.75rem;
-    color: #444;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    gap: 0.25rem;
-  }
-  .bottom-nav button span {
-    line-height: 1;
-  }
-  .bottom-nav button:focus {
-    outline: 2px solid #2E90FF;
-  }
+    .app-dashboard {
+        padding: 15px 0 80px 0;
+    }
+
+    .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        color: white;
+    }
+
+    .app-header-left {
+        background: white;
+        border-radius: 20px;
+        padding: 5px 20px;
+        display: flex;
+        align-items: center;
+    }
+
+    .app-header-left img {
+        height: 35px;
+    }
+
+    .app-header-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+        font-size: 18px;
+    }
+
+    .app-header-right img {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+
+    .app-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .app-card {
+        background: white;
+        border-radius: 12px;
+        border: 2px solid #2874f0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 10px;
+        text-align: center;
+        text-decoration: none;
+        color: #555;
+        min-height: 140px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+
+    .app-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .app-card img {
+        height: 60px;
+        margin-bottom: 15px;
+        object-fit: contain;
+    }
+
+    .app-card i {
+        font-size: 60px;
+        margin-bottom: 15px;
+    }
+
+    .app-card span {
+        font-size: 16px;
+        font-weight: 500;
+        color: #555;
+    }
+
+    .app-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: white;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 12px 0;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        z-index: 1000;
+    }
+
+    .app-bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: #555;
+        font-size: 14px;
+        font-weight: 500;
+        gap: 5px;
+    }
+
+    .app-bottom-nav-item i {
+        font-size: 28px;
+    }
+
 </style>
 @endpush

@@ -1,18 +1,46 @@
 @extends('admin.layouts.app')
 @section('panel')
 <style>
-    table td {
+/* Override theme's custom responsive table stacking */
+.table-responsive table td, .table-responsive table th,
+table.table--light.style--two tbody td,
+table.table--light.style--two thead th {
+    display: table-cell !important;
     text-align: left !important;
-    font-size: large;
-}
- table th {
-    text-align: left !important;
-    font-size: large;
+    font-size: large !important;
+    white-space: nowrap !important;
+    padding-left: 10px !important;
 }
 
-table.table--light.style--two tbody td {
-    font-size: large !important;
-        padding: 3px 10px !important;
+.table-responsive table tr {
+    display: table-row !important;
+}
+
+.table-responsive table thead {
+    display: table-header-group !important;
+}
+
+.table-responsive table tbody {
+    display: table-row-group !important;
+}
+
+.table-responsive table td::before {
+    display: none !important;
+}
+
+.table-responsive {
+    max-height: 600px;
+    overflow-y: auto;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+table.table--light thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #4634ff !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 </style>
 <div class="row">
@@ -20,7 +48,7 @@ table.table--light.style--two tbody td {
         <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive--md table-responsive">
-                    <table class="table table--light style--two">
+                    <table class="table table--light style--two" id="schoolTable">
                         <thead>
                             <tr>
                                 <th>@lang('S.N.')</th>
@@ -38,72 +66,11 @@ table.table--light.style--two tbody td {
                             </tr>
                         </thead>
                         <tbody>
-
-                           
-                            @forelse($allStaff as $staff)
-                            <tr>
-                                <td>{{ $loop->index + $allStaff->firstItem() }}</td>
-                                <td>{{ $staff->username }}</td>
-                                <td>{{ __($staff->name) }}</td>
-                                <td>{{ $staff->email }}</td>
-                                <td>{{ $staff->partner }}</td>
-                                <td>{{ $staff->mobile }}</td>
-                                <td>{{ $staff->addresh }}</td>
-                                <td>{{ $staff->code }}</td>
-                                <td>{{ implode(', ', explode(',', $staff->fields)) }}</td>
-                                <td>
-                                    @if ($staff->role)
-                                    {{ $staff->role->name }}
-                                    @else
-                                    @lang('Super Admin')
-                                    @endif
-                                </td>
-
-                                <td>
-                                    @php
-                                    echo $staff->statusBadge;
-                                    @endphp
-                                </td>
-                                <td>
-                                    <div class="button--group">
-                                        @permit('admin.school.edit')
-                                            <button type="button" class="btn btn-sm btn-outline--primary cuModalBtn" data-resource="{{ $staff }}" data-modal_title="@lang('Update School')">
-                                                <i class="la la-pencil"></i>@lang('Edit')
-                                            </button>
-                                        @endpermit
-                                        @if ($staff->id > 1)
-                                         
-                                        @if ($staff->status)
-                                        <button class="btn btn-sm confirmationBtn btn-outline--danger" data-action="{{ route('admin.school.status', $staff->id) }}" data-question="@lang('Are you sure to ban this staff?')" type="button">
-                                            <i class="las la-user-alt-slash"></i>@lang('Ban')
-                                        </button>
-                                        @else
-                                        <button class="btn btn-sm confirmationBtn btn-outline--success" data-action="{{ route('admin.school.status', $staff->id) }}" data-question="@lang('Are you sure to active this staff?')" type="button">
-                                            <i class="las la-user-check"></i>@lang('Active')
-                                        </button>
-                                        @endif
-                                        <a class="btn btn-sm btn-outline--dark" href="{{ route('admin.school.login', $staff->id) }}" target="_blank">
-                                            <i class="las la-sign-in-alt"></i>@lang('Login')
-                                        </a>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-
-                            @empty
-                            <tr>
-                                <td class="text-muted text-center" colspan="100%">{{ __($emptyMessage) }}</td>
-                            </tr>
-                            @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
-            @if ($allStaff->hasPages())
-            <div class="card-footer py-4">
-                {{ paginateLinks($allStaff) }}
-            </div>
-            @endif
+            
         </div>
     </div>
 </div>
@@ -245,6 +212,11 @@ table.table--light.style--two tbody td {
 
 @push('breadcrumb-plugins')
 <x-search-form placeholder="Username" />
+@if(auth()->guard('admin')->id() == 1)
+<a href="{{ route('admin.school.excel') }}" class="btn btn-sm btn-outline--success">
+    <i class="las la-file-excel"></i>@lang('Excel Export')
+</a>
+@endif
 @permit('admin.school.add')
 <!-- Modal Trigger Button -->
 <button type="button" class="btn btn-sm btn-outline--primary cuModalBtn" data-modal_title="@lang('Add New School')">
@@ -261,11 +233,35 @@ table.table--light.style--two tbody td {
 <script>
     (function($) {
         "use strict";
+
+        $('#schoolTable').DataTable({
+            processing: true,
+            serverSide: true,
+            pageLength: 50,
+            scrollX: true,
+            autoWidth: false,
+            ajax: "{{ route('admin.school.index') }}",
+            columns: [
+                {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                {data: 'username', name: 'username'},
+                {data: 'school_name', name: 'name'},
+                {data: 'email', name: 'email'},
+                {data: 'partner', name: 'partner'},
+                {data: 'mobile', name: 'mobile'},
+                {data: 'addresh', name: 'addresh'},
+                {data: 'code', name: 'code'},
+                {data: 'fields_allowed', name: 'fields_allowed', orderable: false, searchable: false},
+                {data: 'role_name', name: 'role_name', orderable: false, searchable: false},
+                {data: 'status', name: 'status', orderable: false, searchable: false},
+                {data: 'action', name: 'action', orderable: false, searchable: false},
+            ]
+        });
+
         $('.generatePassword').on('click', function() {
             $(this).siblings('[name=password]').val(generatePassword());
         });
 
-        $('.cuModalBtn').on('click', function() {
+        $(document).on('click', '.cuModalBtn', function() {
             let passwordField = $('#cuModal').find($('[name=password]'));
             let label = passwordField.parents('.form-group').find('label')
             if ($(this).data('resource')) {

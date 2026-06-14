@@ -43,23 +43,7 @@ class EmployeController extends Controller
     $allowedFields = array_filter(explode(',', $admins->fields ?? ''));
     
 
-    if ($adminId != 1) {
-        $distinctClasses = Student::select(DB::raw('MIN(id) as id'), 'class')
-            ->whereNotNull('class')
-            ->where('school_id', $adminId)
-            ->groupBy('class')
-            ->orderBy('class')
-            ->get();
-
-        $all_school = Admin::where('status', 1)->where('id', $adminId)->get();
-    } else {
-        $all_school = Admin::where('status', 1)->get();
-        $distinctClasses = Student::select(DB::raw('MIN(id) as id'), 'class')
-            ->whereNotNull('class')
-            ->groupBy('class')
-            ->orderBy('class')
-            ->get();
-    }
+    // Queries for $distinctClasses and $all_school moved below AJAX block
 
     if ($request->ajax()) {
         $students = DB::table('tbl_student')
@@ -98,31 +82,6 @@ class EmployeController extends Controller
             $page = $request->input('page', 1);
             $perPage = 15;
 
-            // Get filter inputs safely
-            $select_school = $request->input('filter.select_school', []);
-            $select_class = $request->input('filter.select_class', []);
-            $select_status = $request->input('filter.select_status', []);
-
-            // Apply school filter if set
-            if (!empty($select_school)) {
-                $students->where('tbl_student.school_id', $select_school);
-            }
-
-            // Apply class filter if set
-            if (!empty($select_class)) {
-                $students->whereIn('tbl_student.class', $select_class);
-            }
-
-            // Apply profile status filter if set
-            if (!empty($select_status)) {
-                if (in_array('0', $select_status) && !in_array('1', $select_status)) {
-                    $students->whereNull('tbl_student.profile');
-                } elseif (!in_array('0', $select_status) && in_array('1', $select_status)) {
-                    $students->whereNotNull('tbl_student.profile');
-                }
-                // If both are present, skip filtering (show all)
-            }
-
             // Pagination
             $data = $students->skip(($page - 1) * $perPage)->take($perPage)->get();
 
@@ -137,7 +96,6 @@ class EmployeController extends Controller
                 $student->action = $actions;
             }
 
-            return response()->json(['data' => $data]);
             return response()->json(['data' => $data]);
         }
 
@@ -156,6 +114,24 @@ class EmployeController extends Controller
             ->rawColumns(['action'])
             ->make(true);
     }
+    if ($adminId != 1) {
+        $distinctClasses = Student::select(DB::raw('MIN(id) as id'), 'class')
+            ->whereNotNull('class')
+            ->where('school_id', $adminId)
+            ->groupBy('class')
+            ->orderBy('class')
+            ->get();
+
+        $all_school = Admin::where('status', 1)->where('id', $adminId)->get();
+    } else {
+        $all_school = Admin::where('status', 1)->get();
+        $distinctClasses = Student::select(DB::raw('MIN(id) as id'), 'class')
+            ->whereNotNull('class')
+            ->groupBy('class')
+            ->orderBy('class')
+            ->get();
+    }
+
         if (!empty($admins->name)) {
              array_unshift($allowedFields, 'school_name');
         }
@@ -401,6 +377,92 @@ $allowedFields = array_unique($allowedFields);
         $name = $pageTitle . time() . '.csv';
         return [$filename, $name, $headers];
 
+    }
+
+    public function studentExcel(Request $request)
+    {
+        $pageTitle = $this->pageTitle;
+        $students = Student::query();
+        $students->where('deleted', 0);
+        $filter = $request->filter ?? [];
+
+        $school_ids = $filter['school_id'] ?? [];
+        if (!empty($school_ids)) {
+            $students->whereIn('school_id', $school_ids);
+        }
+
+        $class_list = $filter['class'] ?? [];
+        if (!empty($class_list)) {
+            $students->whereIn('class', $class_list);
+        }
+
+        $students = $students->get();
+
+        return $this->downloadExcelFile($pageTitle, $students);
+    }
+
+    protected function downloadExcelFile($pageTitle, $data)
+    {
+        $adminId     = auth()->guard('admin')->id();
+        $get_student = Admin::find($adminId);
+
+        $allowedFields = array_filter(explode(',', $get_student->fields ?? ''));
+
+        $fieldLabels = [
+            'student_name' => 'Student Name',
+            'profile'      => 'Student Profile',
+            'mobile'       => 'Phone Number',
+            'email_id'     => 'Student Email',
+            'father_name'  => 'Father Name',
+            'mother_name'  => 'Mother Name',
+            'address'      => 'Address',
+            'dob'          => 'DOB',
+            'class'        => 'Class',
+            'section'      => 'Section',
+            'session'      => 'Session',
+            'adm_no'       => 'Admission no',
+            'bus'          => 'Bus no',
+            'blood_group'  => 'Blood Group',
+            'roll_no'      => 'Roll no',
+            'designation'  => 'Designation',
+            'husband_name' => 'Husband Name',
+            'emp_id'       => 'Emp ID',
+            'emp_name'     => 'Employee Name',
+            'blank_1'      => 'Blank 1',
+            'blank_2'      => 'Blank 2',
+            'created_at'   => 'Created At',
+        ];
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headerRow = [];
+        foreach ($allowedFields as $field) {
+            $headerRow[] = $fieldLabels[$field] ?? ucfirst(str_replace('_', ' ', $field));
+        }
+
+        $sheet->fromArray($headerRow, NULL, 'A1');
+
+        $rowData = [];
+        foreach ($data as $employe) {
+            $row = [];
+            foreach ($allowedFields as $field) {
+                $row[] = $employe->$field ?? '';
+            }
+            $rowData[] = $row;
+        }
+
+        $sheet->fromArray($rowData, NULL, 'A2');
+
+        $fileName = $pageTitle . time() . '.xlsx';
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 
 

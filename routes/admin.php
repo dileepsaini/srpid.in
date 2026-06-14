@@ -51,6 +51,7 @@ Route::middleware(['admin', 'admin.permission'])->group(function () {
 
     Route::controller('StaffController')->prefix('school')->name('school.')->group(function () {
         Route::get('all', 'index')->name('index');
+        Route::get('excel', 'schoolExcel')->name('excel');
         Route::post('save/{id?}', 'save')->name('save');
         Route::post('switch-status/{id}', 'status')->name('status');
         Route::get('login/{id}', 'login')->name('login');
@@ -76,8 +77,10 @@ Route::middleware(['admin', 'admin.permission'])->group(function () {
     // employe
     Route::controller('EmployeController')->name('student.')->prefix('student')->group(function () {
         Route::get('all', 'index')->name('index');
+        Route::get('excel', 'schoolExcel')->name('excel');
         Route::post('store/{id?}', 'store')->name('store');
         Route::get('csv', 'studentCSV')->name('csv');
+        Route::get('excel', 'studentExcel')->name('excel');
         Route::post('import', 'import')->name('import');
         Route::get('import/all', 'importAll')->name('importAll');
         Route::post('/students/bulk-delete', 'bulkDelete')->name('bulkDelete');

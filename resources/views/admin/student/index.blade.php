@@ -52,6 +52,9 @@
                                    
                                     @foreach ($allowedFields as $field)
                                         <th>{{ ucwords(str_replace('_', ' ', $field)) }}</th>
+                                        @if($field === 'profile')
+                                            <th>Profile Path</th>
+                                        @endif
                                     @endforeach
                                     <th>Action</th>
                                 </tr>
@@ -221,6 +224,9 @@
                 @permit('admin.student.csv')
                     <li>
                         <a class="dropdown-item dowanloadCSV" href="#"><i class="la la-download"></i>@lang('Download CSV')</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item dowanloadExcel" href="#"><i class="las la-file-excel"></i>@lang('Download Excel')</a>
                     </li>
                 @endpermit
              
@@ -630,10 +636,13 @@ $(document).on('click', '.addNew', function () {
         const allowedFields = @json($allowedFields);
         const all_filter = {};
             $(document).on('click', '.filder_submit', function () {
-                var select_school = $("[name=select_school]").val(); // âœ… This returns an array
+                var select_school = $("[name=select_school]").val(); 
                 var select_class = $("[name=select_class]").val(); 
                 var select_status = $("[name=select_status]").val(); 
              
+                sessionStorage.setItem('student_filter_school', JSON.stringify(select_school || []));
+                sessionStorage.setItem('student_filter_class', JSON.stringify(select_class || []));
+                sessionStorage.setItem('student_filter_status', JSON.stringify(select_status || []));
 
                 all_filter['select_school'] = select_school;
                 all_filter['select_class'] = select_class;
@@ -686,6 +695,18 @@ $(document).on('click', '.addNew', function () {
                 const className = $('#select_class').val();
 
                 let url = '{{ route('admin.student.csv') }}' + '?';
+                url += $.param({
+                    'filter[school_id]': schoolId,
+                    'filter[class]': className
+                });
+                window.location.href = url; // Triggers download
+            });
+
+          $(document).on('click', '.dowanloadExcel', function(){
+                const schoolId = $('#select_school').val();
+                const className = $('#select_class').val();
+
+                let url = '{{ route('admin.student.excel') }}' + '?';
                 url += $.param({
                     'filter[school_id]': schoolId,
                     'filter[class]': className
@@ -956,6 +977,20 @@ $('#loadMoreBtn').on('click', function () {
                 }
 
                 columns.push(column);
+
+                if (field === 'profile') {
+                    columns.push({
+                        data: 'profile',
+                        name: 'profile_path',
+                        title: 'Profile Path',
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row) {
+                            if (!data) return '';
+                            return `<span style="font-size: 14px; color: #555;">${data}</span>`;
+                        }
+                    });
+                }
             });
 
             // Add action column
@@ -987,10 +1022,31 @@ $('#loadMoreBtn').on('click', function () {
 
     
     $(document).ready(function () {
-        initOrderTable();
-    $('#select_school').select2()
-    $('#select_class').select2()
-    $('#select_status').select2()
+        $('#select_school').select2();
+        $('#select_class').select2();
+        $('#select_status').select2();
+
+        let storedSchool = sessionStorage.getItem('student_filter_school');
+        let storedClass = sessionStorage.getItem('student_filter_class');
+        let storedStatus = sessionStorage.getItem('student_filter_status');
+        
+        if (storedSchool) {
+            let val = JSON.parse(storedSchool);
+            $("[name=select_school]").val(val).trigger('change');
+            all_filter['select_school'] = val;
+        }
+        if (storedClass) {
+            let val = JSON.parse(storedClass);
+            $("[name=select_class]").val(val).trigger('change');
+            all_filter['select_class'] = val;
+        }
+        if (storedStatus) {
+            let val = JSON.parse(storedStatus);
+            $("[name=select_status]").val(val).trigger('change');
+            all_filter['select_status'] = val;
+        }
+
+        initOrderTable(all_filter);
         $(document).on('click', '.show_img', function(){
             var src = $(this).attr('src');
 
@@ -1011,5 +1067,23 @@ $('#loadMoreBtn').on('click', function () {
     }
     .card-header.bg-danger {
         background-color: #fd5c63 !important;
+    }
+
+    /* Sticky Header CSS */
+    #studenDatatable thead th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #4634ff !important;
+        color: #ffffff !important;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    /* Alternating Column Colors */
+    #studenDatatable tbody td:nth-child(even) {
+        background-color: #f8f9fa !important;
+    }
+    #studenDatatable tbody td:nth-child(odd) {
+        background-color: #ffffff !important;
     }
 </style>
