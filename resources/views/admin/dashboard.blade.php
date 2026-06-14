@@ -50,24 +50,10 @@
         </a>
         @endpermit
 
-        @if(auth()->guard('admin')->id() == 1)
-        <a href="javascript:void(0)" class="app-card">
-            <i class="las la-info-circle" style="color: #455a64;"></i>
-            <span>About</span>
-        </a>
-
-        <a href="javascript:void(0)" class="app-card">
+        <a href="tel:{{ \App\Models\Admin::find(1)->mobile ?? '' }}" class="app-card">
             <i class="las la-phone-volume" style="color: #1976d2;"></i>
-            <span>Contact</span>
+            <span>{{ \App\Models\Admin::find(1)->mobile ?? 'Contact' }}</span>
         </a>
-        @endif
-
-        @permit('admin.student.csv')
-        <a href="{{ route('admin.student.excel') }}" class="app-card">
-            <i class="las la-file-excel" style="color: #00796b;"></i>
-            <span>Excel Export</span>
-        </a>
-        @endpermit
     </div>
 </div>
 
