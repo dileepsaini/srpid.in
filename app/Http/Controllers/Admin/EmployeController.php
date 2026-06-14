@@ -377,7 +377,11 @@ $allowedFields = array_unique($allowedFields);
         foreach ($data as $employe) {
             $row = [];
             foreach ($allowedFields as $field) {
-                $row[] = $employe->$field ?? '';
+                $val = $employe->$field ?? '';
+                if (in_array($field, ['studen_signature', 'employe_signature']) && $val) {
+                    $val = basename($val);
+                }
+                $row[] = $val;
             }
             fputcsv($myFile, $row);
         }
@@ -468,7 +472,11 @@ $allowedFields = array_unique($allowedFields);
         foreach ($data as $employe) {
             $row = [];
             foreach ($allowedFields as $field) {
-                $row[] = $employe->$field ?? '';
+                $val = $employe->$field ?? '';
+                if (in_array($field, ['studen_signature', 'employe_signature']) && $val) {
+                    $val = basename($val);
+                }
+                $row[] = $val;
             }
             $rowData[] = $row;
         }
@@ -503,8 +511,8 @@ public function ImgUpdate(Request $request)
     $file = $request->file('image');
 
     $typeShort = $request->type;
-    if ($typeShort === 'studen_signature') $typeShort = 'std_sing';
-    if ($typeShort === 'employe_signature') $typeShort = 'emp_sig';
+    if ($typeShort === 'studen_signature') $typeShort = 'std';
+    if ($typeShort === 'employe_signature') $typeShort = 'emp';
 
     // Unique JPG filename
     $filename = $schoolCode . '_' . time() . '_' . $typeShort . '.jpg';
@@ -640,7 +648,7 @@ public function ImgUpdate(Request $request)
                     throw new \Exception("Base64 decode failed or content too small");
                 }
         
-                $sigShort = ($sigField === 'studen_signature') ? 'std_sing' : 'emp_sig';
+                $sigShort = ($sigField === 'studen_signature') ? 'std' : 'emp';
                 $fileName = $schoolCode . '_' . time() . '_' . $sigShort . '.png';
                 $destinationPath = public_path('students/signatures');
         
