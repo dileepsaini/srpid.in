@@ -43,7 +43,7 @@
         </a>
         @endpermit
 
-        <a href="https://wa.me/91{{ \App\Models\Admin::find(1)->mobile ?? '' }}?text=hello%20sir" target="_blank" class="app-card">
+        <a href="https://wa.me/91{{ \App\Models\Admin::find(1)->mobile ?? '' }}?text=Hello%20sir%20I'm%20from%20{{ urlencode(auth()->guard('admin')->user()->name) }}" target="_blank" class="app-card">
             <i class="lab la-whatsapp" style="color: #25D366;"></i>
             <span>{{ \App\Models\Admin::find(1)->mobile ?? 'Contact' }}</span>
         </a>
