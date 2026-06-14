@@ -2,16 +2,21 @@
 @section('panel')
 <style>
 .table-responsive {
-    max-height: 600px;
+    height: 500px;
     overflow-y: auto;
     overflow-x: auto;
 }
 /* Prevent table from stacking on mobile */
+#schoolTable {
+    display: table !important;
+    width: 100% !important;
+}
 #schoolTable td, #schoolTable th {
     display: table-cell !important;
     text-align: left !important;
     white-space: nowrap !important;
     vertical-align: middle !important;
+    padding: 10px 15px !important;
 }
 #schoolTable tr {
     display: table-row !important;
