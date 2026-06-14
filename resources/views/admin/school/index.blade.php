@@ -1,40 +1,15 @@
 @extends('admin.layouts.app')
 @section('panel')
 <style>
-/* Override theme's custom responsive table stacking */
-.table-responsive table td, .table-responsive table th,
-table.table--light.style--two tbody td,
-table.table--light.style--two thead th {
-    display: table-cell !important;
-    text-align: left !important;
-    font-size: large !important;
-    white-space: nowrap !important;
-    padding-left: 10px !important;
-}
-
-.table-responsive table tr {
-    display: table-row !important;
-}
-
-.table-responsive table thead {
-    display: table-header-group !important;
-}
-
-.table-responsive table tbody {
-    display: table-row-group !important;
-}
-
-.table-responsive table td::before {
-    display: none !important;
-}
-
 .table-responsive {
     max-height: 600px;
     overflow-y: auto;
-    overflow-x: auto; /* Enable horizontal scrolling */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overflow-x: auto;
 }
-table.table--light thead th {
+.table-responsive table td, .table-responsive table th {
+    white-space: nowrap;
+}
+#schoolTable thead th {
     position: sticky;
     top: 0;
     z-index: 10;
@@ -238,8 +213,6 @@ table.table--light thead th {
             processing: true,
             serverSide: true,
             pageLength: 50,
-            scrollX: true,
-            autoWidth: false,
             ajax: "{{ route('admin.school.index') }}",
             columns: [
                 {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
