@@ -970,9 +970,9 @@ $('#loadMoreBtn').on('click', function () {
                 if (imageFields.includes(field)) {
                     column.render = function (data, type, row) {
                         if (!data) {
-                            return `<img class="updateImg" src="{{ asset('red-x-png-4.png') }}" data-type="${field}" data-id="${row.id}" alt="red-x-png-4.png" width="60" height="60">`;
+                            return `<img class="updateImg" src="{{ asset('red-x-png-4.png') }}" data-type="${field}" data-id="${row.id}" alt="red-x-png-4.png" width="60" height="60" style="border-radius: 50%; object-fit: cover; border: 2px solid #e0e0e0; cursor: pointer;">`;
                         }
-                        return `<img class="updateImg" src="{{ asset('students') }}/${data}" data-type="${field}" data-id="${row.id}" alt="images" width="60" height="60">`;
+                        return `<img class="updateImg" src="{{ asset('students') }}/${data}" data-type="${field}" data-id="${row.id}" alt="images" width="60" height="60" style="border-radius: 50%; object-fit: cover; border: 2px solid #e0e0e0; cursor: pointer;">`;
                     };
                 }
 
