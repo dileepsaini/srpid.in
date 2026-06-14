@@ -8,6 +8,7 @@
 }
 .table-responsive table td, .table-responsive table th {
     white-space: nowrap;
+    text-align: left !important;
 }
 #schoolTable thead th {
     position: sticky;
