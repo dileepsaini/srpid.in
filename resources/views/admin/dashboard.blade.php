@@ -50,8 +50,8 @@
         </a>
         @endpermit
 
-        <a href="tel:{{ \App\Models\Admin::find(1)->mobile ?? '' }}" class="app-card">
-            <i class="las la-phone-volume" style="color: #1976d2;"></i>
+        <a href="https://wa.me/91{{ \App\Models\Admin::find(1)->mobile ?? '' }}?text=hello%20sir" target="_blank" class="app-card">
+            <i class="lab la-whatsapp" style="color: #25D366;"></i>
             <span>{{ \App\Models\Admin::find(1)->mobile ?? 'Contact' }}</span>
         </a>
     </div>
