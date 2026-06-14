@@ -6,10 +6,26 @@
     overflow-y: auto;
     overflow-x: auto;
 }
-.table-responsive table td, .table-responsive table th {
-    white-space: nowrap;
+/* Prevent table from stacking on mobile */
+#schoolTable td, #schoolTable th {
+    display: table-cell !important;
     text-align: left !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
 }
+#schoolTable tr {
+    display: table-row !important;
+}
+#schoolTable thead {
+    display: table-header-group !important;
+}
+#schoolTable tbody {
+    display: table-row-group !important;
+}
+#schoolTable td::before {
+    display: none !important;
+}
+
 #schoolTable thead th {
     position: sticky;
     top: 0;
