@@ -17,6 +17,9 @@
     color: #ffffff !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
+.dataTables_filter {
+    display: none;
+}
 </style>
 <div class="row">
     <div class="col-lg-12">
@@ -186,7 +189,12 @@
 @endsection
 
 @push('breadcrumb-plugins')
-<x-search-form placeholder="Username" />
+<div class="d-flex align-items-center mb-2 mb-sm-0">
+    <div class="input-group">
+        <input type="text" id="customSearchBox" class="form-control bg--white" placeholder="Search by name, username, email, phone...">
+        <span class="input-group-text bg--primary text-white" id="searchBtn" style="cursor: pointer;"><i class="las la-search"></i></span>
+    </div>
+</div>
 @if(auth()->guard('admin')->id() == 1)
 <a href="{{ route('admin.school.excel') }}" class="btn btn-sm btn-outline--success">
     <i class="las la-file-excel"></i>@lang('Excel Export')
@@ -209,7 +217,7 @@
     (function($) {
         "use strict";
 
-        $('#schoolTable').DataTable({
+        var schoolTable = $('#schoolTable').DataTable({
             processing: true,
             serverSide: true,
             pageLength: 50,
@@ -228,6 +236,21 @@
                 {data: 'status', name: 'status', orderable: false, searchable: false},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ]
+        });
+
+        $('#customSearchBox').on('keyup', function() {
+            schoolTable.search($(this).val()).draw();
+        });
+
+        $('#customSearchBox').on('keydown', function(e) {
+            if (e.keyCode == 13) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        $('#searchBtn').on('click', function() {
+            schoolTable.search($('#customSearchBox').val()).draw();
         });
 
         $('.generatePassword').on('click', function() {
