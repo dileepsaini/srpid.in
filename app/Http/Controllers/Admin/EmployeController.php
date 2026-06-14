@@ -59,18 +59,25 @@ class EmployeController extends Controller
             $students->where('tbl_student.school_id', $adminId);
         }
 
-        $select_school = $request->filter['select_school'] ?? '';
-        if ($select_school) {
+        $select_school = $request->filter['select_school'] ?? [];
+        \Log::info('Full DataTables Request Filter: ' . json_encode($request->filter ?? []));
+        if (!is_array($select_school)) $select_school = [$select_school];
+        $select_school = array_filter($select_school, function($value) { return $value !== '' && $value !== null; });
+        if (!empty($select_school)) {
             $students->whereIn('tbl_student.school_id', $select_school);
         }
 
-        $select_class = $request->filter['select_class'] ?? '';
-        if ($select_class) {
+        $select_class = $request->filter['select_class'] ?? [];
+        if (!is_array($select_class)) $select_class = [$select_class];
+        $select_class = array_filter($select_class, function($value) { return $value !== '' && $value !== null; });
+        if (!empty($select_class)) {
             $students->whereIn('tbl_student.class', $select_class);
         }
 
         $select_status = $request->filter['select_status'] ?? [];
-        if (is_array($select_status) && ! empty($select_status)) {
+        if (!is_array($select_status)) $select_status = [$select_status];
+        $select_status = array_filter($select_status, function($value) { return $value !== '' && $value !== null; });
+        if (!empty($select_status)) {
             if (in_array('0', $select_status) && ! in_array('1', $select_status)) {
                 $students->whereNull('tbl_student.profile');
             } elseif (! in_array('0', $select_status) && in_array('1', $select_status)) {
@@ -99,6 +106,7 @@ class EmployeController extends Controller
             return response()->json(['data' => $data]);
         }
 
+        \Log::info('DataTables SQL: ' . $students->toSql(), $students->getBindings());
 
         return datatables()->of($students)
             ->addColumn('action', function ($row) {

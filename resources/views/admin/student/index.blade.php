@@ -648,8 +648,8 @@ $(document).on('click', '.addNew', function () {
                 all_filter['select_class'] = select_class;
                 all_filter['select_status'] = select_status;
 
-                initOrderTable(all_filter)
-                 loadStudentCards(1, all_filter) 
+                initOrderTable(all_filter);
+                loadStudentCards(1, all_filter); 
             });
 
          $(document).on('click', '.dowanload', function () {
@@ -838,13 +838,15 @@ function loadStudentCards(page = 1, filters = null) {
             });
 
             currentPage++;
-            loading = false;
 
             if (res.data.length < 15) {
                 $('#loadMoreBtn').hide(); // hide when no more records
             } else {
                 $('#loadMoreBtn').show();
             }
+        },
+        complete: function() {
+            loading = false;
         }
     });
 }
