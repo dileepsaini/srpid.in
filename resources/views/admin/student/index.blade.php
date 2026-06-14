@@ -37,8 +37,22 @@
               </select>
             </div>
         </div>
-        <div class="col-md-3"> 
-            <button type="button" class="btn btn-primary filder_submit mt-30">Search</button>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="">Select Image Types</label>
+                <select class="form-control" name="select_image_types" id="select_image_types" multiple>
+                    <option value="profile">Profile</option>
+                    <option value="father_image">Father Image</option>
+                    <option value="mother_image">Mother Image</option>
+                    <option value="guardian_image">Guardian Image</option>
+                    <option value="studen_signature">Student Signature</option>
+                    <option value="employe_signature">Employee Signature</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-12 text-end mb-3"> 
+            <button type="button" class="btn btn-primary filder_submit">Search</button>
+            <button type="button" id="downloadImagesBtn" class="btn btn-success ms-2"><i class="las la-download"></i> Download Images</button>
         </div>
         <div class="col-lg-12">
             <div class="card">
@@ -623,6 +637,72 @@ $(document).on('click', '.addNew', function () {
   
 
 });
+$(document).on('click', '#downloadImagesBtn', function () {
+    var school_id = $('#select_school').val();
+    var class_val = $('#select_class').val();
+    var status_val = $('#select_status').val();
+    var image_types = $('#select_image_types').val();
+
+    if (!image_types || image_types.length === 0) {
+        toastr.error('Please select at least one image type to download.');
+        return false;
+    }
+
+    var form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{{ route('admin.student.downloadImages') }}";
+    
+    var token = document.createElement('input');
+    token.type = 'hidden';
+    token.name = '_token';
+    token.value = '{{ csrf_token() }}';
+    form.appendChild(token);
+
+    if (school_id) {
+        school_id.forEach(function(id) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'school_id[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+    }
+
+    if (class_val) {
+        class_val.forEach(function(id) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'class[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+    }
+
+    if (status_val) {
+        status_val.forEach(function(id) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'status[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+    }
+
+    if (image_types) {
+        image_types.forEach(function(type) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'image_types[]';
+            input.value = type;
+            form.appendChild(input);
+        });
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+});
+
         (function($) {
             "use strict"
             $(".importBtn").on('click', function(e) {
@@ -1030,6 +1110,7 @@ $('#loadMoreBtn').on('click', function () {
         $('#select_school').select2();
         $('#select_class').select2();
         $('#select_status').select2();
+        $('#select_image_types').select2();
 
         let storedSchool = sessionStorage.getItem('student_filter_school');
         let storedClass = sessionStorage.getItem('student_filter_class');

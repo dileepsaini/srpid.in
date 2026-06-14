@@ -90,6 +90,7 @@ Route::middleware(['admin', 'admin.permission'])->group(function () {
         Route::get('delete/{id}', 'delete')->name('delete');
         Route::get('add/{school_id?}', 'create')->name('create');
         Route::get('download-student-photos', 'downloadPhotos')->name('download');
+        Route::post('download-images', 'downloadImages')->name('downloadImages');
         Route::post('ImgUpdate', 'ImgUpdate')->name('ImgUpdate');
 
         Route::get('upload', 'upload')->name('upload');

@@ -482,11 +482,12 @@ public function ImgUpdate(Request $request)
 
     $student = Student::findOrFail($request->id);
     $admin = Admin::find(auth()->guard('admin')->id());
+    $schoolCode = $student->school ? $student->school->code : $admin->code;
 
     $file = $request->file('image');
 
     // Unique JPG filename
-    $filename = $admin->code . '_' . time() . '_' . $request->type . '.jpg';
+    $filename = $schoolCode . '_' . time() . '_' . $request->type . '.jpg';
 
     $destinationPath = public_path('students');
 
@@ -559,6 +560,7 @@ public function ImgUpdate(Request $request)
         }
 
          $student->school_id = $schoolId;
+         $schoolCode = Admin::find($schoolId)->code ?? $admin->code;
 
         // Handle file/image upload
        foreach (['profile','father_image', 'mother_image', 'guardian_image'] as $imgField) {
@@ -570,7 +572,7 @@ public function ImgUpdate(Request $request)
                         File::makeDirectory($destinationPath, 0755, true);
                     }
             
-                    $filename = $admin->code . '_' . time() . $imgField . '.jpg';
+                    $filename = $schoolCode . '_' . time() . '_' . $imgField . '.jpg';
                     $image = Image::make($file)->encode('jpg', 90);
                     $image->save($destinationPath . '/' . $filename);
             
@@ -589,7 +591,7 @@ public function ImgUpdate(Request $request)
                     throw new \Exception('Base64 decode failed');
                 }
         
-                $filename = $admin->code . '_' . time() . 'profile.jpg';
+                $filename = $schoolCode . '_' . time() . '_profile.jpg';
                 $destinationPath = public_path('students');
         
                 if (!File::exists($destinationPath)) {
@@ -618,7 +620,7 @@ public function ImgUpdate(Request $request)
                     throw new \Exception("Base64 decode failed or content too small");
                 }
         
-                $fileName = uniqid($sigField . '_') . '.png';
+                $fileName = $schoolCode . '_' . time() . '_' . $sigField . '.png';
                 $destinationPath = public_path('students/signatures');
         
                 if (!File::exists($destinationPath)) {
@@ -721,5 +723,83 @@ public function ImgUpdate(Request $request)
             $delete->save();
         }
        return redirect()->route('admin.student.index')->with('success', 'Student deleted successfully!');
+    }
+    public function downloadImages(Request $request)
+    {
+        $schoolIds = $request->input('school_id');
+        $classes = $request->input('class');
+        $statuses = $request->input('status');
+        $imageTypes = $request->input('image_types'); // array of types e.g. ['profile', 'father_image']
+
+        if (empty($imageTypes)) {
+            return back()->with('error', 'Please select at least one image type to download.');
+        }
+
+        $query = Student::where('deleted', 0);
+
+        if (!empty($schoolIds)) {
+            $query->whereIn('school_id', $schoolIds);
+        }
+        if (!empty($classes)) {
+            $query->whereIn('class', $classes);
+        }
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+
+        $students = $query->with('school')->get();
+
+        if ($students->isEmpty()) {
+            return back()->with('error', 'No students found for the selected filters.');
+        }
+
+        $zip = new ZipArchive;
+        $fileName = 'Student_Images_' . time() . '.zip';
+        $zipPath = public_path('downloads/' . $fileName);
+
+        if (!File::exists(public_path('downloads'))) {
+            File::makeDirectory(public_path('downloads'), 0755, true);
+        }
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            $filesAdded = 0;
+            
+            foreach ($students as $student) {
+                $schoolName = $student->school ? preg_replace('/[^A-Za-z0-9\-]/', '_', $student->school->name) : 'Unknown_School';
+                $studentName = preg_replace('/[^A-Za-z0-9\-]/', '_', $student->student_name) . '_' . $student->id;
+
+                foreach ($imageTypes as $type) {
+                    $imageValue = $student->$type;
+                    if ($imageValue) {
+                        $filePath = '';
+                        if (in_array($type, ['studen_signature', 'employe_signature'])) {
+                            $filePath = public_path('students' . $imageValue);
+                        } else {
+                            $filePath = public_path('students/' . $imageValue);
+                        }
+
+                        if (File::exists($filePath)) {
+                            $ext = File::extension($filePath);
+                            $zipEntryName = $schoolName . '/' . $studentName . '/' . $type . '.' . $ext;
+                            $zip->addFile($filePath, $zipEntryName);
+                            $filesAdded++;
+                        }
+                    }
+                }
+            }
+
+            $zip->close();
+
+            if ($filesAdded > 0) {
+                return response()->download($zipPath)->deleteFileAfterSend(true);
+            } else {
+                if (File::exists($zipPath)) {
+                    File::delete($zipPath);
+                }
+                return back()->with('error', 'No image files were found for the selected criteria.');
+            }
+        }
+
+        return back()->with('error', 'Failed to create zip file.');
     }
 }

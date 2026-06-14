@@ -43,4 +43,9 @@ class Student extends Model
     'blank_1',
     'blank_2'
 ];
+
+    public function school()
+    {
+        return $this->belongsTo(Admin::class, 'school_id');
+    }
 }
