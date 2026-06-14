@@ -436,13 +436,16 @@ $(document).on('click', '#cropImageBtn', function () {
                 success: function (res) {
                     if (res.success && res.image_path) {
                         const newSrc = res.image_path + '?t=' + new Date().getTime();
-                        $(uploadInfo.targetImg).attr('src', newSrc).css({
-                            'width': '180px',   // 3x
-                            'height': '300px',  // 5x
-                            'object-fit': 'cover',
-                            'display': 'block'
-                        });
-                        loadStudentCards(currentPage, all_filter);
+                        $(uploadInfo.targetImg).attr('src', newSrc);
+                        
+                        if (typeof isDataTable !== 'undefined' && isDataTable) {
+                            if (typeof window.schoolTable !== 'undefined') {
+                                window.schoolTable.ajax.reload(null, false);
+                            }
+                        } else {
+                            loadStudentCards(currentPage, all_filter);
+                        }
+                        
                         $('#cropperModal').modal('hide');
                     } else {
                         toastr.error("Upload failed.");
