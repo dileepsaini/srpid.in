@@ -13,15 +13,6 @@
     </div>
 
     <div class="app-grid">
-        @if(auth()->guard('admin')->id() == 1)
-        @permit('admin.school.index')
-        <a href="{{ route('admin.school.index') }}" class="app-card">
-            <img src="{{ asset('assets/icon/Add-School.jpg') }}" alt="Add School">
-            <span>Add School</span>
-        </a>
-        @endpermit
-        @endif
-
         @permit('admin.school.index')
         <a href="{{ route('admin.school.index') }}" class="app-card">
             <img src="{{ asset('assets/icon/List-School.webp') }}" alt="School List">
