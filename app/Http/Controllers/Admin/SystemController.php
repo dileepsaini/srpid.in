@@ -9,7 +9,6 @@ use App\Lib\FileManager;
 use App\Models\UpdateLog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Laramin\Utility\VugiChugi;
 
 class SystemController extends Controller
 {
@@ -45,68 +44,13 @@ class SystemController extends Controller
 
 
     public function systemUpdateProcess(){
-        if (gs('system_customized')) {
-            return response()->json([
-                'status'=>'error',
-                'message'=>[
-                    'The system already customized. You can\'t update the project'
-                ]
-            ]);
-        }
-
-
-        if (version_compare(systemDetails()['version'],gs('available_version'),'==')) {
-            return response()->json([
-                'status'=>'info',
-                'message'=>[
-                    'The system is currently up to date'
-                ]
-            ]);
-        }
-
-
-        if(!extension_loaded('zip')){
-            return response()->json([
-                'status'=>'error',
-                'message'=>[
-                    'Zip Extension is required to update the system'
-                ]
-            ]);
-        }
-
-        $purchasecode = env('PURCHASECODE');
-        if (!$purchasecode) {
-            return response()->json([
-                'status'=>'error',
-                'message'=>[
-                    'Invalid request. Please contact with support'
-                ]
-            ]);
-        }
-
-        $website = @$_SERVER['HTTP_HOST'] . @$_SERVER['REQUEST_URI'] . ' - ' . env("APP_URL");
-
-        $response = CurlRequest::curlPostContent(VugiChugi::upman(),[
-            'purchasecode'=>$purchasecode,
-            'product'=>systemDetails()['name'],
-            'version'=>systemDetails()['version'],
-            'website'=>$website,
+        return response()->json([
+            'status'=>'error',
+            'message'=>['System update via tracking server is disabled for security reasons.']
         ]);
+    }
 
-        $response = json_decode($response);
-        if($response->status == 'error'){
-            return response()->json([
-                'status'=>'error',
-                'message'=>$response->message->error
-            ]);
-        }
-
-        if($response->remark == 'already_updated'){
-            return response()->json([
-                'status'=>'info',
-                'message'=>$response->message->success
-            ]);
-        }
+    public function systemUpdateProcess_Original(){
 
         $directory = 'core/temp/';
         $files = [];
