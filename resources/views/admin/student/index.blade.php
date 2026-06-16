@@ -53,7 +53,9 @@
         </div>
         <div class="col-md-12 text-end mb-3"> 
             <button type="button" class="btn btn-primary filder_submit">Search</button>
+            @permit('admin.student.downloadImages')
             <button type="button" id="downloadImagesBtn" class="btn btn-success ms-2"><i class="las la-download"></i> Download Images</button>
+            @endpermit
         </div>
         <div class="col-lg-12">
             <div class="card">
