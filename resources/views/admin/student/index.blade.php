@@ -192,64 +192,73 @@
 
 
 @push('breadcrumb-plugins')
-    @permit('admin.student.store')
-        <button class="btn btn-outline--primary " data-modal_title="@lang('Add New Student')" type="button">
-            {{-- {{ Route('admin.student.create') }} --}}
-           
-                        
-          @if($adminId == 1)
+    @php
+        $currentAdminId = auth()->guard('admin')->id();
+        $isSchoolLogin  = ($currentAdminId != 1);
+    @endphp
+
+    @if(!$isSchoolLogin)
+        {{-- Super Admin ke liye: Add New Student --}}
+        @permit('admin.student.store')
+            <button class="btn btn-outline--primary" data-modal_title="@lang('Add New Student')" type="button">
                 <a href="#" rel="noopener noreferrer" class="add_student">
                     <i class="la la-plus"></i>@lang('Add New')
                 </a>
-            @else
-                <a href="{{ route('admin.student.create') }}?school_id={{ $adminId }}" rel="noopener noreferrer">
+            </button>
+        @endpermit
+    @else
+        {{-- School login ke liye: Add New Student (apne school ke liye) --}}
+        @permit('admin.student.store')
+            <button class="btn btn-outline--primary" data-modal_title="@lang('Add New Student')" type="button">
+                <a href="{{ route('admin.student.create') }}?school_id={{ $currentAdminId }}" rel="noopener noreferrer">
                     <i class="la la-plus"></i>@lang('Add New')
                 </a>
-            @endif
-
-        </button>
-    @endpermit
-     @permit('admin.student.download')
-        <button type="button" class="btn btn-primary dowanload">Download Photos</button>
- @endpermit
-        @permit('admin.student.import')
-          <button class=""  type="button">
-             <a class="btn btn--12" href="{{ route('admin.student.importAll') }}">
-                            @lang('Import CSV')</a>
-        </button>
-                       
-         @endpermit
-   
-        @permit('admin.student.bulkDelete')
-        <button type="button" id="deleteSelected" class=""><a class="btn btn--red" href="#">
-                            @lang('Delete Selected')</a></button>
-
-       
-                       
-         @endpermit
-   
-    @php
-        $params = request()->all();
-    @endphp
-          
-    @permit('admin.student.csv')
-        <div class="btn-group">
-            <button class="btn btn-outline--success dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
-                @lang('Action')
             </button>
-            <ul class="dropdown-menu">
-                @permit('admin.student.csv')
-                    <li>
-                        <a class="dropdown-item dowanloadCSV" href="#"><i class="la la-download"></i>@lang('Download CSV')</a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item dowanloadExcel" href="#"><i class="las la-file-excel"></i>@lang('Download Excel')</a>
-                    </li>
-                @endpermit
-             
-            </ul>
-        </div>
+        @endpermit
+    @endif
+
+    {{-- Download Photos: sabko dikhega (school aur super admin dono ko) --}}
+    @permit('admin.student.download')
+        <button type="button" class="btn btn-primary dowanload">Download Photos</button>
     @endpermit
+
+    @if(!$isSchoolLogin)
+        {{-- Super Admin ke liye: Import CSV --}}
+        @permit('admin.student.import')
+            <button class="" type="button">
+                <a class="btn btn--12" href="{{ route('admin.student.importAll') }}">
+                    @lang('Import CSV')
+                </a>
+            </button>
+        @endpermit
+
+        {{-- Super Admin ke liye: Delete Selected --}}
+        @permit('admin.student.bulkDelete')
+            <button type="button" id="deleteSelected" class="">
+                <a class="btn btn--red" href="#">@lang('Delete Selected')</a>
+            </button>
+        @endpermit
+
+        {{-- Super Admin ke liye: Action (CSV/Excel download) --}}
+        @php $params = request()->all(); @endphp
+        @permit('admin.student.csv')
+            <div class="btn-group">
+                <button class="btn btn-outline--success dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
+                    @lang('Action')
+                </button>
+                <ul class="dropdown-menu">
+                    @permit('admin.student.csv')
+                        <li>
+                            <a class="dropdown-item dowanloadCSV" href="#"><i class="la la-download"></i>@lang('Download CSV')</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item dowanloadExcel" href="#"><i class="las la-file-excel"></i>@lang('Download Excel')</a>
+                        </li>
+                    @endpermit
+                </ul>
+            </div>
+        @endpermit
+    @endif
 @endpush
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>

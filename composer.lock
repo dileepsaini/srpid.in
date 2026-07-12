@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5cce37e767d045db4841e45aa75e6258",
+    "content-hash": "474af2109b758f15a1419079ab94d83a",
     "packages": [
         {
             "name": "authorizenet/authorizenet",
@@ -1806,49 +1806,6 @@
                 }
             ],
             "time": "2025-05-05T16:03:34+00:00"
-        },
-        {
-            "name": "laramin/utility",
-            "version": "v1.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/kbzaman76/utility.git",
-                "reference": "7010eef6e72982b6eedf9856cea7d03a3d064c75"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/kbzaman76/utility/zipball/7010eef6e72982b6eedf9856cea7d03a3d064c75",
-                "reference": "7010eef6e72982b6eedf9856cea7d03a3d064c75",
-                "shasum": ""
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Laramin\\Utility\\UtilityServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Laramin\\Utility\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "laramin"
-                }
-            ],
-            "description": "Utility services for application.",
-            "support": {
-                "issues": "https://github.com/kbzaman76/utility/issues",
-                "source": "https://github.com/kbzaman76/utility/tree/v1.0.7"
-            },
-            "time": "2024-05-12T07:08:27+00:00"
         },
         {
             "name": "laravel/framework",
@@ -10946,12 +10903,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }
